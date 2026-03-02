@@ -34,7 +34,7 @@ Place your files in `assets/images/`:
 ### Resume
 Place your resume PDF at:
 ```
-assets/resume.pdf
+assets/Felipe_Resume.pdf
 ```
 The navbar "Resume" button and any resume links will open this file.
 
