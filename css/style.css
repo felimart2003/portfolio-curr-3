@@ -184,6 +184,11 @@ ul { list-style: none; }
   position: relative;
   overflow: hidden;
 }
+.btn span,
+.btn i {
+  position: relative;
+  z-index: 1;
+}
 .btn::before {
   content: '';
   position: absolute;
@@ -256,8 +261,17 @@ ul { list-style: none; }
   color: var(--text-primary);
 }
 .nav-logo:hover { color: var(--text-primary); }
-.logo-bracket { color: var(--accent-1); }
-.logo-slash { color: var(--accent-3); }
+.logo-tilde { color: var(--accent-2); }
+.logo-slash { color: var(--text-muted); }
+.logo-letter { color: var(--text-primary); }
+.logo-cursor {
+  color: var(--accent-3);
+  animation: cursorBlink 1s step-end infinite;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
 .nav-links {
   display: flex;
@@ -1265,10 +1279,37 @@ ul { list-style: none; }
   font-size: 0.72rem;
   color: var(--text-muted);
   letter-spacing: 1px;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  user-select: none;
+}
+.footer-credit:hover {
+  color: var(--text-secondary);
 }
 .footer-credit strong {
   color: var(--accent-3);
   font-weight: 500;
+}
+
+/* Easter egg confetti */
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confettiFall var(--fall-duration, 2.5s) cubic-bezier(0.25, 0, 0.5, 1) forwards;
+}
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(var(--confetti-rot, 720deg)) scale(0.3);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -1299,10 +1340,10 @@ ul { list-style: none; }
   border-color: var(--accent-3);
   transform: scale(1.1);
 }
-.theme-toggle .fa-sun  { display: none; }
-.theme-toggle .fa-moon { display: inline; }
-[data-theme="light"] .theme-toggle .fa-sun  { display: inline; }
-[data-theme="light"] .theme-toggle .fa-moon { display: none; }
+.theme-toggle .fa-sun  { display: inline; }
+.theme-toggle .fa-moon { display: none; }
+[data-theme="light"] .theme-toggle .fa-sun  { display: none; }
+[data-theme="light"] .theme-toggle .fa-moon { display: inline; }
 
 /* ═══════════════════════════════════════════
    SCROLL TO TOP

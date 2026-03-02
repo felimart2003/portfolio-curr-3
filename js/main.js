@@ -432,6 +432,65 @@
     yearEl.textContent = new Date().getFullYear();
   }
 
+  // ─── Footer Easter Egg ───
+  (function initEasterEgg() {
+    const credit = document.getElementById('footerCredit');
+    if (!credit) return;
+
+    const messages = [
+      'Designed & Built by <strong>Felipe</strong>',
+      '☕ Fuelled by caffeine & curiosity',
+      '🎵 Coded to lo-fi beats',
+      '🐧 btw, I use Arch',
+      '🧠 No frameworks were harmed',
+      '🎹 Piano breaks between commits',
+      '⚽ git push origin main && go play soccer',
+      '🔐 Encrypted with love',
+    ];
+    let msgIndex = 0;
+    let clickCount = 0;
+
+    function spawnConfetti() {
+      const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+      const count = 40;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('confetti-piece');
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.top = `${-10 + Math.random() * 20}px`;
+        piece.style.width = `${6 + Math.random() * 6}px`;
+        piece.style.height = `${6 + Math.random() * 6}px`;
+        piece.style.setProperty('--fall-duration', `${1.8 + Math.random() * 1.5}s`);
+        piece.style.setProperty('--confetti-rot', `${360 + Math.random() * 720}deg`);
+        piece.style.animationDelay = `${Math.random() * 0.4}s`;
+        document.body.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove());
+      }
+    }
+
+    credit.addEventListener('click', () => {
+      clickCount++;
+      msgIndex = clickCount % messages.length;
+      credit.innerHTML = messages[msgIndex];
+
+      // Confetti on every 3rd click
+      if (clickCount % 3 === 0) {
+        spawnConfetti();
+      }
+
+      // Special: barrel roll on 10th click
+      if (clickCount === 10) {
+        document.body.style.transition = 'transform 1s ease';
+        document.body.style.transform = 'rotate(360deg)';
+        setTimeout(() => {
+          document.body.style.transform = '';
+          setTimeout(() => { document.body.style.transition = ''; }, 1000);
+        }, 1000);
+      }
+    });
+  })();
+
   // ─── Console Easter Egg ───
   console.log(
     '%c🛡️ Felipe\'s Portfolio',
