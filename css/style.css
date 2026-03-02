@@ -965,6 +965,10 @@ ul { list-style: none; }
 .beyond-tag:hover i {
   opacity: 1;
 }
+.flag-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
 
 /* ═══════════════════════════════════════════
    PROJECTS — FEATURED

@@ -216,9 +216,9 @@
   (function initJello() {
     if (window.matchMedia('(max-width: 768px)').matches) return; // skip on mobile
 
-    const SPRING   = 0.08;  // stiffness (lower = more wobbly)
-    const DAMPING  = 0.65;  // friction  (lower = more bouncy)
-    const STRENGTH = 0.35;  // max skew/translate multiplier
+    const SPRING   = 0.025; // stiffness (lower = more wobbly)
+    const DAMPING  = 0.92;  // friction  (lower = more bouncy, higher = slower settle)
+    const STRENGTH = 0.8;   // max skew/translate multiplier
 
     // Collect elements that should jello
     const jelloSelectors = [
@@ -263,15 +263,15 @@
         s.y += s.vy;
 
         // Clamp to avoid wild values
-        if (Math.abs(s.y) > 30) s.y = 30 * Math.sign(s.y);
+        if (Math.abs(s.y) > 60) s.y = 60 * Math.sign(s.y);
 
-        const skew = s.y * 0.06;   // subtle skew
-        const ty   = s.y * 0.4;    // subtle translateY offset
-        const sc   = 1 + Math.abs(s.y) * 0.0008; // micro scale squish
+        const skew = s.y * 0.12;   // visible skew
+        const ty   = s.y * 0.9;    // exaggerated translateY offset
+        const sc   = 1 + Math.abs(s.y) * 0.002; // noticeable scale squish
 
         el.style.transform = `translateY(${ty}px) skewY(${skew}deg) scaleY(${1/sc}) scaleX(${sc})`;
 
-        if (Math.abs(s.vy) > 0.05 || Math.abs(s.y) > 0.05) {
+        if (Math.abs(s.vy) > 0.01 || Math.abs(s.y) > 0.01) {
           anyMoving = true;
         } else {
           s.y = 0;
