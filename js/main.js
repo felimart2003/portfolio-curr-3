@@ -294,11 +294,11 @@
   (function initImageTilt() {
     if (window.matchMedia('(max-width: 768px)').matches) return;
 
-    const images = document.querySelectorAll('.image-wrapper img, .project-image img');
+    const images = document.querySelectorAll('.image-wrapper img, .project-image img, .photo-card img');
 
     images.forEach(img => {
       img.classList.add('tilt-image');
-      const container = img.closest('.image-wrapper') || img.closest('.project-image');
+      const container = img.closest('.image-wrapper') || img.closest('.project-image') || img.closest('.photo-card');
       if (!container) return;
 
       container.addEventListener('mousemove', (e) => {
@@ -308,12 +308,10 @@
         const cx = rect.width / 2;
         const cy = rect.height / 2;
 
-        const rotX = ((y - cy) / cy) * -8;   // tilt up to 8°
+        const rotX = ((y - cy) / cy) * -8;
         const rotY = ((x - cx) / cx) * 8;
-        const shine = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
 
         img.style.transform = `perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
-        img.style.backgroundPosition = shine; // for potential shine overlay
       });
 
       container.addEventListener('mouseleave', () => {
@@ -322,6 +320,110 @@
         setTimeout(() => { img.style.transition = 'transform 0.15s ease-out'; }, 500);
       });
     });
+  })();
+
+  // ─── Photo Stack (drag to cycle) ───
+  (function initPhotoStack() {
+    const stack = document.getElementById('photoStack');
+    if (!stack) return;
+
+    const cards = Array.from(stack.querySelectorAll('.photo-card'));
+    if (cards.length === 0) return;
+
+    let order = cards.map((_, i) => i); // indices in display order (0 = top)
+
+    function applyPositions() {
+      const rotations = [0, 3, -2];
+      const scales    = [1, 0.95, 0.90];
+      const offX      = [0, 8, -6];
+      const offY      = [0, 8, 16];
+      const opacities = [1, 0.7, 0.4];
+
+      order.forEach((cardIdx, pos) => {
+        const card = cards[cardIdx];
+        card.setAttribute('data-position', pos);
+        card.style.zIndex = cards.length - pos;
+        if (!card.classList.contains('dragging')) {
+          card.style.transform = `rotate(${rotations[pos] || 0}deg) scale(${scales[pos] || 0.85}) translateX(${offX[pos] || 0}px) translateY(${offY[pos] || 20}px)`;
+          card.style.opacity = opacities[pos] !== undefined ? opacities[pos] : 0.3;
+        }
+      });
+    }
+
+    applyPositions();
+
+    // Drag handling (mouse + touch)
+    let dragging = null;
+    let startX = 0;
+    let currentX = 0;
+
+    function onStart(e) {
+      const card = e.target.closest('.photo-card');
+      if (!card || card.getAttribute('data-position') !== '0') return; // only top card
+      dragging = card;
+      dragging.classList.add('dragging');
+      startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+      currentX = 0;
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+      currentX = clientX - startX;
+      const rotate = currentX * 0.08;
+      const opacity = Math.max(0.5, 1 - Math.abs(currentX) / 400);
+      dragging.style.transform = `translateX(${currentX}px) rotate(${rotate}deg) scale(1)`;
+      dragging.style.opacity = opacity;
+    }
+
+    function onEnd() {
+      if (!dragging) return;
+      const threshold = 80;
+      dragging.classList.remove('dragging');
+
+      if (Math.abs(currentX) > threshold) {
+        // Animate off-screen in drag direction, then send to back
+        const direction = currentX > 0 ? 1 : -1;
+        dragging.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+        dragging.style.transform = `translateX(${direction * 500}px) rotate(${direction * 20}deg) scale(0.8)`;
+        dragging.style.opacity = '0';
+
+        setTimeout(() => {
+          // Cycle: move top card to back of order
+          const topCardIdx = order.shift();
+          order.push(topCardIdx);
+          // Reset transition and apply new positions
+          cards.forEach(c => { c.style.transition = ''; });
+          applyPositions();
+          // Re-enable smooth transition after a frame
+          requestAnimationFrame(() => {
+            cards.forEach(c => {
+              c.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease';
+            });
+            applyPositions();
+          });
+        }, 350);
+      } else {
+        // Snap back
+        dragging.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease';
+        applyPositions();
+        setTimeout(() => {
+          cards.forEach(c => {
+            c.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease';
+          });
+        }, 500);
+      }
+
+      dragging = null;
+      currentX = 0;
+    }
+
+    stack.addEventListener('mousedown', onStart);
+    stack.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchend', onEnd);
   })();
 
   // ─── Year in Footer ───

@@ -205,7 +205,8 @@
   will-change: transform;
 }
 .image-wrapper,
-.project-image {
+.project-image,
+.photo-card {
   overflow: hidden;
   perspective: 800px;
 }

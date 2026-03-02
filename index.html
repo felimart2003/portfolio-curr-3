@@ -119,11 +119,25 @@
           </ul>
         </div>
         <div class="about-image animate-on-scroll">
-          <div class="image-wrapper">
-            <!-- ▼ PLACEHOLDER: Replace src with your photo ▼ -->
-            <img src="assets/images/profile.jpg" alt="Felipe — Profile Photo"
-                 onerror="this.onerror=null; this.src='assets/images/placeholder.svg';" />
-            <div class="image-overlay"></div>
+          <div class="photo-stack" id="photoStack">
+            <!-- Card 1 (top) -->
+            <div class="photo-card" data-index="0">
+              <img src="assets/images/profile.jpg" alt="Felipe — Photo 1"
+                   onerror="this.onerror=null; this.src='assets/images/placeholder.svg';" />
+            </div>
+            <!-- Card 2 -->
+            <div class="photo-card" data-index="1">
+              <img src="assets/images/profile-2.jpg" alt="Felipe — Photo 2"
+                   onerror="this.onerror=null; this.src='assets/images/placeholder.svg';" />
+            </div>
+            <!-- Card 3 -->
+            <div class="photo-card" data-index="2">
+              <img src="assets/images/profile-3.jpg" alt="Felipe — Photo 3"
+                   onerror="this.onerror=null; this.src='assets/images/placeholder.svg';" />
+            </div>
+            <p class="photo-stack-hint">
+              <i class="fas fa-hand-pointer"></i> Drag to cycle
+            </p>
           </div>
         </div>
       </div>
