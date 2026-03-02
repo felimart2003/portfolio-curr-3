@@ -15,8 +15,27 @@
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabPanels = document.querySelectorAll('.tab-panel');
   const navLinks = document.querySelectorAll('.nav-link, .mobile-link');
+  const themeToggle = document.getElementById('themeToggleFixed');
+  const scrollTopBtn = document.getElementById('scrollTop');
 
-  // ─── Navbar Scroll Effect ───
+  // ─── Theme Toggle ───
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }
+
+  // Load saved theme (default: dark)
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  setTheme(savedTheme);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  // ─── Navbar Scroll Effect & Scroll-to-Top Visibility ───
   let lastScroll = 0;
   window.addEventListener('scroll', () => {
     const currentScroll = window.scrollY;
@@ -28,8 +47,24 @@
       navbar.classList.remove('scrolled');
     }
 
+    // Show/hide scroll-to-top button
+    if (scrollTopBtn) {
+      if (currentScroll > 400) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    }
+
     lastScroll = currentScroll;
   });
+
+  // ─── Scroll to Top ───
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // ─── Mobile Menu Toggle ───
   hamburger.addEventListener('click', () => {
