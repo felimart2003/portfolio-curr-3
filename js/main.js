@@ -188,7 +188,7 @@
 
   // ─── Console Easter Egg ───
   console.log(
-    '%c🛡️ Felim\'s Portfolio',
+    '%c🛡️ Felipe\'s Portfolio',
     'color: #06b6d4; font-size: 20px; font-weight: bold;'
   );
   console.log(
