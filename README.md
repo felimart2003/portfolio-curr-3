@@ -1,7 +1,9 @@
 # Portfolio Resume 3
 My portfolio resume as of 02/3/2026.
+
 I am at Carleton University completing my degree of "Bachelor of Computer Science Honours: Cybersecurity Stream (Co-op) with Statistics Minor". 
 
+---
 A modern, dark-themed portfolio website with glassmorphism effects, particle animations, scroll-reveal transitions, and interactive tilt cards. Built with vanilla HTML, CSS, and JavaScript — no frameworks, no build tools.
 
 ## Quick Start
