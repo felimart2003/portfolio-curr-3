@@ -226,7 +226,7 @@
       '.featured-project', '.project-description',
       '.section-heading', '.hero-content', '.contact-content',
       '.about-text', '.about-image', '.experience-tabs',
-      '.tab-panel'
+      '.tab-panel', '.beyond-card'
     ];
     const jellos = document.querySelectorAll(jelloSelectors.join(','));
     jellos.forEach(el => el.classList.add('jello-element'));
