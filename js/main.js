@@ -212,8 +212,117 @@
     });
   });
 
-  // ─── Typing Effect for Hero Tagline (optional enhancement) ───
-  // Already looks great with CSS, so keeping it simple.
+  // ─── Jello / Scroll Inertia (spring physics) ───
+  (function initJello() {
+    if (window.matchMedia('(max-width: 768px)').matches) return; // skip on mobile
+
+    const SPRING   = 0.08;  // stiffness (lower = more wobbly)
+    const DAMPING  = 0.65;  // friction  (lower = more bouncy)
+    const STRENGTH = 0.35;  // max skew/translate multiplier
+
+    // Collect elements that should jello
+    const jelloSelectors = [
+      '.skill-card', '.project-card', '.timeline-card',
+      '.featured-project', '.project-description',
+      '.section-heading', '.hero-content', '.contact-content',
+      '.about-text', '.about-image', '.experience-tabs',
+      '.tab-panel'
+    ];
+    const jellos = document.querySelectorAll(jelloSelectors.join(','));
+    jellos.forEach(el => el.classList.add('jello-element'));
+
+    // Per-element spring state
+    const state = new Map();
+    jellos.forEach(el => state.set(el, { y: 0, vy: 0 }));
+
+    let prevScroll = window.scrollY;
+    let scrollDelta = 0;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      const now = window.scrollY;
+      scrollDelta = now - prevScroll;
+      prevScroll = now;
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(tick);
+      }
+    }, { passive: true });
+
+    function tick() {
+      let anyMoving = false;
+
+      jellos.forEach(el => {
+        const s = state.get(el);
+        // Push by scroll delta
+        s.vy += scrollDelta * STRENGTH;
+        // Spring back toward 0
+        s.vy += -SPRING * s.y;
+        // Dampen
+        s.vy *= DAMPING;
+        s.y += s.vy;
+
+        // Clamp to avoid wild values
+        if (Math.abs(s.y) > 30) s.y = 30 * Math.sign(s.y);
+
+        const skew = s.y * 0.06;   // subtle skew
+        const ty   = s.y * 0.4;    // subtle translateY offset
+        const sc   = 1 + Math.abs(s.y) * 0.0008; // micro scale squish
+
+        el.style.transform = `translateY(${ty}px) skewY(${skew}deg) scaleY(${1/sc}) scaleX(${sc})`;
+
+        if (Math.abs(s.vy) > 0.05 || Math.abs(s.y) > 0.05) {
+          anyMoving = true;
+        } else {
+          s.y = 0;
+          s.vy = 0;
+          el.style.transform = '';
+        }
+      });
+
+      scrollDelta = 0; // consume delta
+
+      if (anyMoving) {
+        requestAnimationFrame(tick);
+      } else {
+        ticking = false;
+      }
+    }
+  })();
+
+  // ─── Universal Image Tilt ───
+  (function initImageTilt() {
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+
+    const images = document.querySelectorAll('.image-wrapper img, .project-image img');
+
+    images.forEach(img => {
+      img.classList.add('tilt-image');
+      const container = img.closest('.image-wrapper') || img.closest('.project-image');
+      if (!container) return;
+
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+
+        const rotX = ((y - cy) / cy) * -8;   // tilt up to 8°
+        const rotY = ((x - cx) / cx) * 8;
+        const shine = `${(x / rect.width) * 100}% ${(y / rect.height) * 100}%`;
+
+        img.style.transform = `perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
+        img.style.backgroundPosition = shine; // for potential shine overlay
+      });
+
+      container.addEventListener('mouseleave', () => {
+        img.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+        img.style.transform = 'perspective(600px) rotateX(0) rotateY(0) scale(1)';
+        setTimeout(() => { img.style.transition = 'transform 0.15s ease-out'; }, 500);
+      });
+    });
+  })();
 
   // ─── Year in Footer ───
   const yearEl = document.querySelector('.footer-year');

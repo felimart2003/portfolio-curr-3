@@ -193,3 +193,19 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
 }
+
+/* ─── Jello / Scroll Inertia ─── */
+.jello-element {
+  will-change: transform;
+}
+
+/* ─── Universal Image Tilt ─── */
+.tilt-image {
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+.image-wrapper,
+.project-image {
+  overflow: hidden;
+  perspective: 800px;
+}
