@@ -155,6 +155,86 @@ ul { list-style: none; }
   transition: opacity 0.4s ease;
 }
 
+/* ─── CUSTOM CURSOR ─── */
+/* Hide the native cursor only when the JS-driven cursor is active (desktop). */
+@media (min-width: 769px) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+.custom-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0;
+  border: 1.5px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  /* "slow transition" between cursor states */
+  transition:
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease,
+    border-radius 0.35s ease,
+    background-color 0.35s ease,
+    opacity 0.25s ease;
+}
+
+/* Crosshair lines (default state) */
+.custom-cursor::before,
+.custom-cursor::after {
+  content: '';
+  position: absolute;
+  background: var(--accent-3);
+  transition: opacity 0.35s ease;
+}
+.custom-cursor::before {           /* vertical */
+  left: 50%;
+  top: 0;
+  width: 1.5px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.custom-cursor::after {            /* horizontal */
+  top: 50%;
+  left: 0;
+  height: 1.5px;
+  width: 100%;
+  transform: translateY(-50%);
+}
+
+/* Over text → small circle (crosshair fades out) */
+.custom-cursor.is-text {
+  width: 14px;
+  height: 14px;
+  border-color: var(--accent-3);
+  border-radius: 50%;
+}
+.custom-cursor.is-text::before,
+.custom-cursor.is-text::after {
+  opacity: 0;
+}
+
+/* Over a link/button → solid blinking block */
+.custom-cursor.is-link {
+  width: 16px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--accent-3);
+  animation: cursorBlink 1.05s steps(1, end) infinite;
+}
+.custom-cursor.is-link::before,
+.custom-cursor.is-link::after {
+  opacity: 0;
+}
+
 /* ─── UTILITY ─── */
 .container {
   max-width: var(--container-max);

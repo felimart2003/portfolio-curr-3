@@ -194,6 +194,12 @@
   background: linear-gradient(90deg, transparent, var(--border-glass), transparent);
 }
 
+/* ─── Custom Cursor blink (over links) ─── */
+@keyframes cursorBlink {
+  0%, 50%      { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
 /* ─── Jello / Scroll Inertia ─── */
 .jello-element {
   will-change: transform;

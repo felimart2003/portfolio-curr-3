@@ -158,26 +158,87 @@
     });
   });
 
-  // ─── Cursor Glow (Desktop Only) ───
+  // ─── Cursor Glow / Spotlight (Desktop Only) ───
+  // The glow trails the cursor with an eased lag (~0.5s) instead of
+  // snapping to it, so it feels like a spotlight catching up.
   if (window.matchMedia('(min-width: 769px)').matches && cursorGlow) {
     let glowVisible = false;
+    let curX = window.innerWidth / 2;
+    let curY = window.innerHeight / 2;
+    let tgtX = curX;
+    let tgtY = curY;
+    const EASE = 0.05; // lower = longer trailing delay
 
     document.addEventListener('mousemove', (e) => {
+      tgtX = e.clientX;
+      tgtY = e.clientY;
       if (!glowVisible) {
         cursorGlow.style.opacity = '1';
         glowVisible = true;
       }
-      requestAnimationFrame(() => {
-        cursorGlow.style.left = e.clientX + 'px';
-        cursorGlow.style.top = e.clientY + 'px';
-      });
     });
 
     document.addEventListener('mouseleave', () => {
       cursorGlow.style.opacity = '0';
       glowVisible = false;
     });
+
+    (function followGlow() {
+      curX += (tgtX - curX) * EASE;
+      curY += (tgtY - curY) * EASE;
+      cursorGlow.style.left = curX + 'px';
+      cursorGlow.style.top = curY + 'px';
+      requestAnimationFrame(followGlow);
+    })();
   }
+
+  // ─── Custom Cursor: crosshair / circle on text / blinking block on links ───
+  (function initCustomCursor() {
+    if (!window.matchMedia('(hover: hover) and (min-width: 769px)').matches) return;
+
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    document.body.appendChild(cursor);
+    document.body.classList.add('custom-cursor-active');
+
+    const LINK_SEL = 'a, button, [role="button"], .btn, .tab-btn, label, input, textarea, select, summary';
+    const TEXT_SEL = 'p, h1, h2, h3, h4, h5, h6, li, span, strong, em, blockquote, .skill-tag, .beyond-tag';
+
+    let visible = false;
+
+    // Exact position follow (the spotlight is the delayed one, not this).
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+      if (!visible) {
+        cursor.style.opacity = '1';
+        visible = true;
+      }
+    });
+
+    // State only changes when entering a new element → cheap.
+    document.addEventListener('mouseover', (e) => {
+      const t = e.target;
+      if (t.closest && t.closest(LINK_SEL)) {
+        cursor.classList.add('is-link');
+        cursor.classList.remove('is-text');
+      } else if (t.closest && t.closest(TEXT_SEL)) {
+        cursor.classList.add('is-text');
+        cursor.classList.remove('is-link');
+      } else {
+        cursor.classList.remove('is-text', 'is-link');
+      }
+    });
+
+    document.addEventListener('mouseleave', () => {
+      cursor.style.opacity = '0';
+      visible = false;
+    });
+    window.addEventListener('blur', () => {
+      cursor.style.opacity = '0';
+      visible = false;
+    });
+  })();
 
   // ─── Tilt Effect on Skill Cards ───
   const tiltCards = document.querySelectorAll('[data-tilt]');
@@ -216,9 +277,9 @@
   (function initJello() {
     if (window.matchMedia('(max-width: 768px)').matches) return; // skip on mobile
 
-    const SPRING   = 0.025; // stiffness (lower = more wobbly)
-    const DAMPING  = 0.92;  // friction  (lower = more bouncy, higher = slower settle)
-    const STRENGTH = 0.8;   // max skew/translate multiplier
+    const SPRING   = 0.10;  // stiffness (higher = snappier settle)
+    const DAMPING  = 0.78;  // friction  (lower = more bouncy, higher = slower settle)
+    const STRENGTH = 0.16;  // how strongly scroll velocity feeds the wobble
 
     // Collect elements that should jello
     const jelloSelectors = [
@@ -241,7 +302,9 @@
 
     window.addEventListener('scroll', () => {
       const now = window.scrollY;
-      scrollDelta = now - prevScroll;
+      // Clamp the per-event delta so a fast flick/jump doesn't fling
+      // elements off — keeps the wobble proportional and controlled.
+      scrollDelta = Math.max(-70, Math.min(70, now - prevScroll));
       prevScroll = now;
       if (!ticking) {
         ticking = true;
@@ -263,11 +326,11 @@
         s.y += s.vy;
 
         // Clamp to avoid wild values
-        if (Math.abs(s.y) > 60) s.y = 60 * Math.sign(s.y);
+        if (Math.abs(s.y) > 40) s.y = 40 * Math.sign(s.y);
 
-        const skew = s.y * 0.12;   // visible skew
-        const ty   = s.y * 0.9;    // exaggerated translateY offset
-        const sc   = 1 + Math.abs(s.y) * 0.002; // noticeable scale squish
+        const skew = s.y * 0.16;   // dominant jello skew (~6.4deg max)
+        const ty   = s.y * 0.2;    // subtle follow so content stays readable
+        const sc   = 1 + Math.abs(s.y) * 0.0015; // gentle squish/stretch
 
         el.style.transform = `translateY(${ty}px) skewY(${skew}deg) scaleY(${1/sc}) scaleX(${sc})`;
 

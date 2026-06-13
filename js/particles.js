@@ -12,6 +12,10 @@
   const container = document.getElementById('particles');
   if (!container) return;
 
+  // Track the mouse over the whole hero, not just the (behind-the-text)
+  // particle layer — otherwise hovering the headline doesn't repel anything.
+  const hero = container.closest('.hero') || container;
+
   container.appendChild(canvas);
 
   let width, height;
@@ -93,15 +97,15 @@
       if (p.x < 0 || p.x > width) p.vx *= -1;
       if (p.y < 0 || p.y > height) p.vy *= -1;
 
-      // Mouse interaction
+      // Mouse interaction — repel particles away from the pointer
       if (mouse.x !== null) {
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.0001;
         if (dist < MOUSE_DIST) {
           const force = (MOUSE_DIST - dist) / MOUSE_DIST;
-          p.x += (dx / dist) * force * 0.8;
-          p.y += (dy / dist) * force * 0.8;
+          p.x += (dx / dist) * force * 2.4;
+          p.y += (dy / dist) * force * 2.4;
         }
       }
 
@@ -117,13 +121,13 @@
     resize();
   });
 
-  container.addEventListener('mousemove', (e) => {
+  hero.addEventListener('mousemove', (e) => {
     const rect = container.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
   });
 
-  container.addEventListener('mouseleave', () => {
+  hero.addEventListener('mouseleave', () => {
     mouse.x = null;
     mouse.y = null;
   });
